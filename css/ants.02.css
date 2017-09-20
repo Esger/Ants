@@ -1,0 +1,112 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/* Eric Meyer's CSS reset */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+
+/* The ants CSS */
+html, body {
+	height:100%;
+	font:normal 11px/14px Verdana, Geneva, sans-serif;
+}
+
+canvas{
+	position:absolute;
+	z-index:-100;
+	background-color:#000;
+}
+.clearFix{
+	clear:both;
+}
+
+/* The Controls */
+.controls{
+	position:relative;
+	vertical-align:top;
+	margin:0 auto;
+	width:600px;
+	background-color:rgba(255,255,255,0.4);
+	padding:10px;
+	-webkit-border-radius: 0px 0px 10px 10px;
+	border-radius: 0px 0px 10px 10px;
+	z-index:1000;
+}
+label, output{
+	color:#fff;
+}
+output{
+	font-weight:bold;
+}
+fieldset{
+	float:left;
+	margin-right:10px;
+}
+fieldset{
+	text-align:center;
+}
+fieldset .left{
+	float:left;
+}
+fieldset .right{
+	float:right;
+}
+button{
+	cursor:pointer;
+}
+fieldset.stats,
+fieldset.stats input,
+fieldset.stats label{
+	float:right;
+}
+fieldset.stats label{
+	margin:3px 10px 0 0;
+}
+fieldset.stats{
+	margin-right:0;
+}
+.stats input{
+	color:#000;
+	width:100px;
+	text-align:right;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
