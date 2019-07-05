@@ -246,12 +246,12 @@ $(function () {
             },
 
             // Create new ant instance
-            newAnt: function (pos) {
+            newAnt: function (x, y) {
                 var thisAnt = Object.create(antBrain);
-                this.allAnts.push(thisAnt);
                 thisAnt.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
-                thisAnt.setPosition(pos);
+                thisAnt.setPosition(x, y);
                 antsInterface.updateAntsCount(this.allAnts.length);
+                this.allAnts.push(thisAnt);
             },
 
             // Initialize some stuff
@@ -273,8 +273,8 @@ $(function () {
                     antsInterface.flipPixel(thisAnt.position);
                     thisAnt.oneStep();
                     antsInterface.drawAnt(thisAnt.position);
-                    antsInterface.updateDisplay(antsInterface.stepCounter);
                 }
+                antsInterface.updateDisplay(antsInterface.stepCounter);
                 antsInterface.incStepCounter();
             },
 
@@ -325,8 +325,7 @@ $(function () {
                     if (event.clientY > $('.controls').outerHeight()) {
                         antsController.stopRun();
                         antsInterface.updateAntsCount(antsController.allAnts.length);
-                        antsController.newAnt();
-                        antsController.allAnts[antsController.allAnts.length - 1].setPosition([Math.floor(event.clientX / antsInterface.cellSize), Math.floor(event.clientY / antsInterface.cellSize)]);
+                        antsController.newAnt([Math.floor(event.clientX / antsInterface.cellSize), Math.floor(event.clientY / antsInterface.cellSize)]);
                         antsController.run();
                     }
                 });
