@@ -72,9 +72,9 @@ $(function () {
             // move the ant one step in the current direction
             oneStep: function () {
                 this.position[0] += this.allDirections[this.direction][0];
-                this.position[0] = this.position[0].mod(this.boundaries.right)
+                this.position[0] = this.position[0].mod(this.boundaries.right);
                 this.position[1] += this.allDirections[this.direction][1];
-                this.position[1] = this.position[1].mod(this.boundaries.bottom)
+                this.position[1] = this.position[1].mod(this.boundaries.bottom);
             },
         };
 
@@ -280,7 +280,9 @@ $(function () {
 
             // Run the main cycle each interval miliseconds
             run: function () {
-                this.running = setInterval(this.turnFlipStep, antsInterface.interval);
+                this.running = setInterval(() => {
+                    requestAnimationFrame(this.turnFlipStep);
+                }, antsInterface.interval);
             },
 
             // Pause the main cycle
@@ -291,10 +293,10 @@ $(function () {
             // Listener for mouseClicks
             listener: function () {
                 $('.stop').on('click', function () {
-                    antsController.stopRun()
+                    antsController.stopRun();
                 });
                 $('.run').on('click', function () {
-                    antsController.run()
+                    antsController.run();
                 });
                 $('.clear').on('click', function () {
                     antsController.stopRun();
@@ -343,8 +345,8 @@ $(function () {
 
 });
 
-/* 
+/*
 -  iPad versie verbeteren (range sliders werken niet lekker)
--  Mieren verschillende kleuren sporen achter laten laten. 
+-  Mieren verschillende kleuren sporen achter laten laten.
 -  Verschillende kleuren, verschillende eigenschappen.
 */
