@@ -8,7 +8,7 @@ $(function () {
 		http://javascript.about.com/od/problemsolving/a/modulobug.htm */
         Number.prototype.mod = function (n) {
             return ((this % n) + n) % n;
-        }
+        };
 
         // The Model
         var antBrain = {
@@ -187,19 +187,19 @@ $(function () {
                 for (var i = this.cells.length; i--; i >= 0) {
                     if (this.cells[i][0] === pos[0] && this.cells[i][1] === pos[1]) {
                         this.indexCurrentPixel = i;
-                        return true
+                        return true;
                     }
                 }
                 this.indexCurrentPixel = -1;
-                return false
+                return false;
             },
 
             // flip a Pixel on the screen on given position
             flipPixel: function (pos) {
                 if (this.indexCurrentPixel > -1) {
-                    this.erasePixel(pos)
+                    this.erasePixel(pos);
                 } else {
-                    this.drawPixel(pos)
+                    this.drawPixel(pos);
                 }
             },
 
@@ -221,15 +221,15 @@ $(function () {
 
             //update the speed output with given value (from speed input)
             updateSpeedOutput: function (val) {
-                $('output.speed').val(val)
+                $('output.speed').val(val);
             },
 
             //update the speed output with given value (from speed input)
             updateSizeOutput: function (val) {
-                $('output.size').val(val)
+                $('output.size').val(val);
             },
 
-        }
+        };
 
 
         // The Controller 
@@ -248,7 +248,7 @@ $(function () {
             // Create new ant instance
             newAnt: function (pos) {
                 var thisAnt = Object.create(antBrain);
-                this.allAnts.push(thisAnt)
+                this.allAnts.push(thisAnt);
                 thisAnt.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
                 thisAnt.setPosition(pos);
                 antsInterface.updateAntsCount(this.allAnts.length);
@@ -274,7 +274,7 @@ $(function () {
                     thisAnt.oneStep();
                     antsInterface.drawAnt(thisAnt.position);
                     antsInterface.updateDisplay(antsInterface.stepCounter);
-                };
+                }
                 antsInterface.incStepCounter();
             },
 
@@ -308,7 +308,7 @@ $(function () {
                 });
                 $('input.speed').on(antsInterface.mouseupOrTouchend, function () {
                     antsInterface.updateSpeedOutput($(this).val());
-                    antsController.stopRun()
+                    antsController.stopRun();
                     antsInterface.setSpeedInterval($(this).val());
                     antsController.run();
                 });
@@ -317,13 +317,13 @@ $(function () {
                 });
                 $('input.size').on(antsInterface.mouseupOrTouchend, function () {
                     antsInterface.updateSizeOutput($(this).val());
-                    antsController.stopRun()
+                    antsController.stopRun();
                     antsController.init();
                     antsController.run();
                 });
                 $('body').on(antsInterface.mouseupOrTouchend, function (event) {
                     if (event.clientY > $('.controls').outerHeight()) {
-                        antsController.stopRun()
+                        antsController.stopRun();
                         antsInterface.updateAntsCount(antsController.allAnts.length);
                         antsController.newAnt();
                         antsController.allAnts[antsController.allAnts.length - 1].setPosition([Math.floor(event.clientX / antsInterface.cellSize), Math.floor(event.clientY / antsInterface.cellSize)]);
@@ -331,7 +331,7 @@ $(function () {
                     }
                 });
             }
-        }
+        };
 
 
         // Start doing this !!
