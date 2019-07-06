@@ -88,18 +88,19 @@ $(function () {
             init() {
                 this.setDimensions();
                 this.addCanvasToDOM();
-                this.setSpeedInterval($('input.speed').val());
+                antsController.setSpeedInterval();
                 this.setCellSize($('input.size').val());
                 this.resetStepCounter();
                 this.clearCells();
             },
 
             resize() {
-                this.setDimensions();
-                this.addCanvasToDOM();
-                this.setCellSize($('input.size').val());
-                this.clearCanvas();
-                this.drawPixels();
+                // 'this' is lost when resize is called, so refer to antsInterface
+                antsInterface.setDimensions();
+                antsInterface.addCanvasToDOM();
+                antsInterface.setCellSize($('input.size').val());
+                antsInterface.clearCanvas();
+                antsInterface.drawPixels();
             },
 
             // The size of the antsworld
@@ -120,15 +121,6 @@ $(function () {
             // Setter for the cellSize
             setCellSize(val) {
                 this.cellSize = val;
-            },
-
-            // The interval between steps
-            interval: 0,
-
-            // Setter for interval
-            setSpeedInterval(val) {
-                this.interval = val;
-                $('output.speed').val(val);
             },
 
             // counter for number of steps
@@ -152,7 +144,7 @@ $(function () {
             // clear the Canvas
             clearCanvas() {
                 this.ctx.fillStyle = "rgb(0, 0, 0)";
-                this.ctx.fillRect(0, 0, $(canvas).width(), $(canvas).height());
+                this.ctx.fillRect(0, 0, $(this.canvas).width(), $(this.canvas).height());
             },
 
             // Calculate real pos on screen by multiplying with cellSize
@@ -171,24 +163,17 @@ $(function () {
             // draw all Pixels on the screen
             drawPixels() {
                 this.cells.forEach((row, y) => {
-                    this.row.forEach((cell, x) => {
-                        this.drawPixel([y, x]);
+                    row.forEach((cell, x) => {
+                        this.drawPixel([y, x], cell);
                     });
                 });
             },
 
             // draw a Pixel on the screen given position
-            drawPixel(pos) {
-                this.ctx.fillStyle = "rgb(128, 128, 0)";
+            drawPixel(pos, val) {
+                this.ctx.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
                 this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
-                this.setPixel(pos, 1);
-            },
-
-            // erase a Pixel on the screen given position
-            erasePixel(pos) {
-                this.ctx.fillStyle = "rgb(0, 0, 0)";
-                this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
-                this.setPixel(pos, 0);
+                this.setPixel(pos, val);
             },
 
             // draw the ant
@@ -217,11 +202,8 @@ $(function () {
 
             // flip a Pixel on the screen on given position
             flipPixel(pos) {
-                if (this.cells[pos[0]] && this.cells[pos[0]][pos[1]]) {
-                    this.erasePixel(pos);
-                } else {
-                    this.drawPixel(pos);
-                }
+                let current = (this.cells[pos[0]] && this.cells[pos[0]][pos[1]]) ? 1 : 0;
+                this.drawPixel(pos, 1 - current);
             },
 
             // initilize some values
@@ -279,10 +261,6 @@ $(function () {
                 }
             },
 
-            resize() {
-                this.preserveRunningState(antsInterface.resize);
-            },
-
             preserveRunningState(methodToCall, argument) {
                 let wasRunning = runningId;
                 if (wasRunning) { this.stopRun(); }
@@ -301,13 +279,17 @@ $(function () {
                 antsInterface.incStepCounter();
             },
 
+            // Setter for interval
+            setSpeedInterval() {
+                antsController.interval = parseInt($('input.speed').val(), 10);
+                $('output.speed').val(antsController.interval);
+            },
+
             // Run the main cycle each interval miliseconds
             run() {
-                if (runningId == undefined) {
-                    runningId = setInterval(() => {
-                        requestAnimationFrame(this.turnFlipStep);
-                    }, antsInterface.interval);
-                }
+                runningId = setInterval(() => {
+                    requestAnimationFrame(this.turnFlipStep);
+                }, this.interval);
             },
 
             // Pause the main cycle
@@ -320,32 +302,29 @@ $(function () {
 
             // Listener for mouseClicks
             listener() {
-                let self = this;
-                $('.stop').off('click').on('click', function () {
-                    self.stopRun();
+                $('.stop').off('click').on('click', _ => {
+                    this.stopRun();
                 });
-                $('.run').off('click').on('click', function () {
-                    self.run();
+                $('.run').off('click').on('click', _ => {
+                    this.run();
                 });
-                $('.clear').off('click').on('click', function () {
-                    self.stopRun();
-                    self.killAnts();
-                    self.init(true);
+                $('.clear').off('click').on('click', _ => {
+                    this.stopRun();
+                    this.killAnts();
+                    this.init(true);
                 });
-                $('input.speed').off('change').on('change', function () {
-                    self.stopRun();
-                    antsInterface.setSpeedInterval($(this).val());
-                    self.run();
+                $('input.speed').off('change').on('change', _ => {
+                    this.preserveRunningState(this.setSpeedInterval);
                 });
-                $('input.size').off('change').on('change', function () {
-                    antsInterface.updateSizeOutput($(this).val());
-                    self.init();
+                $('input.size').off('change').on('change', _ => {
+                    antsInterface.updateSizeOutput($('input.size').val());
+                    this.preserveRunningState(antsInterface.resize);
                 });
-                $('#thetoroid').off('click').on('click', function (event) {
+                $('#thetoroid').off('click').on('click', event => {
                     if (event.clientY > $('.controls').outerHeight()) {
                         let pos = [Math.floor(event.clientY / antsInterface.cellSize),
                         Math.floor(event.clientX / antsInterface.cellSize)];
-                        self.preserveRunningState(self.newAnt, pos);
+                        this.preserveRunningState(this.newAnt, pos);
                     }
                 });
             }
