@@ -10,6 +10,9 @@ $(function () {
             return ((this % n) + n) % n;
         };
 
+        // The variable containing the setInterval
+        var runningId = null;
+
         // The Model
         var antBrain = {
 
@@ -82,20 +85,22 @@ $(function () {
         // The Interface
         var antsInterface = {
 
-            // On touchdevices touchstart, initially assuming a desktop computer
-            mouseupOrTouchend: 'mouseup',
-            mousedownOrTouchstart: 'mousedown',
-
-            initTouchDevice() {
-                if ('ontouchstart' in document.documentElement) {
-                    this.mouseupOrTouchend = 'touchend';
-                    this.mousedownOrTouchstart = 'touchstart';
-                    $('body').addClass('touchDevice');
-                }
+            init() {
+                this.setDimensions();
+                this.addCanvasToDOM();
+                this.setSpeedInterval($('input.speed').val());
+                this.setCellSize($('input.size').val());
+                this.resetStepCounter();
+                this.clearCells();
             },
 
-            // The canvas to draw the ants
-            canvas: null,
+            resize() {
+                this.setDimensions();
+                this.addCanvasToDOM();
+                this.setCellSize($('input.size').val());
+                this.clearCanvas();
+                this.drawPixels();
+            },
 
             // The size of the antsworld
             dimensions: {
@@ -104,9 +109,6 @@ $(function () {
                 height: 0,
                 left: 0
             },
-
-            // Array with colored cells
-            cells: [],
 
             clearCells() {
                 this.cells = [];
@@ -126,6 +128,7 @@ $(function () {
             // Setter for interval
             setSpeedInterval(val) {
                 this.interval = val;
+                $('output.speed').val(val);
             },
 
             // counter for number of steps
@@ -163,6 +166,15 @@ $(function () {
                 $('body').prepend('<canvas id="thetoroid" width="' + this.dimensions.width + '" height="' + this.dimensions.height + '"></canvas>');
                 this.canvas = document.getElementById('thetoroid'); // The canvas where the ants live
                 this.ctx = this.canvas.getContext('2d');
+            },
+
+            // draw all Pixels on the screen
+            drawPixels() {
+                this.cells.forEach((row, y) => {
+                    this.row.forEach((cell, x) => {
+                        this.drawPixel([y, x]);
+                    });
+                });
             },
 
             // draw a Pixel on the screen given position
@@ -229,11 +241,6 @@ $(function () {
             },
 
             //update the speed output with given value (from speed input)
-            updateSpeedOutput(val) {
-                $('output.speed').val(val);
-            },
-
-            //update the speed output with given value (from speed input)
             updateSizeOutput(val) {
                 $('output.size').val(val);
             },
@@ -243,9 +250,6 @@ $(function () {
 
         // The Controller 
         var antsController = {
-
-            // The variable containing the setInterval
-            running: null,
 
             // The ants
             ants: [],
@@ -259,22 +263,31 @@ $(function () {
                 let ant = Object.create(antBrain);
                 ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
                 ant.setPosition(pos);
-                this.ants.push(ant);
-                antsInterface.updateAntsCount(this.ants.length);
+                antsController.ants.push(ant);
+                antsInterface.drawAnt(ant.position);
+                antsInterface.updateAntsCount(antsController.ants.length);
             },
 
             // Initialize some stuff
-            init() {
-                antsInterface.setDimensions();
-                antsInterface.addCanvasToDOM();
-                antsInterface.setSpeedInterval($('input.speed').val());
-                antsInterface.setCellSize($('input.size').val());
-                antsInterface.resetStepCounter();
-                antsInterface.clearCells();
-
+            init(dontRun) {
+                this.stopRun();
+                antsInterface.init();
                 this.newAnt();
                 this.listener();
-                this.run();
+                if (!dontRun) {
+                    this.run();
+                }
+            },
+
+            resize() {
+                this.preserveRunningState(antsInterface.resize);
+            },
+
+            preserveRunningState(methodToCall, argument) {
+                let wasRunning = runningId;
+                if (wasRunning) { this.stopRun(); }
+                methodToCall(argument);
+                if (wasRunning) { this.run(); }
             },
 
             // The main cycle
@@ -290,55 +303,49 @@ $(function () {
 
             // Run the main cycle each interval miliseconds
             run() {
-                this.running = setInterval(() => {
-                    requestAnimationFrame(this.turnFlipStep);
-                }, antsInterface.interval);
+                if (runningId == undefined) {
+                    runningId = setInterval(() => {
+                        requestAnimationFrame(this.turnFlipStep);
+                    }, antsInterface.interval);
+                }
             },
 
             // Pause the main cycle
             stopRun() {
-                clearInterval(this.running);
+                if (!!runningId) {
+                    clearInterval(runningId);
+                    runningId = undefined;
+                }
             },
 
             // Listener for mouseClicks
             listener() {
                 let self = this;
-                $('.stop').on('click', function () {
+                $('.stop').off('click').on('click', function () {
                     self.stopRun();
                 });
-                $('.run').on('click', function () {
+                $('.run').off('click').on('click', function () {
                     self.run();
                 });
-                $('.clear').on('click', function () {
+                $('.clear').off('click').on('click', function () {
                     self.stopRun();
                     self.killAnts();
-                    self.init();
+                    self.init(true);
                 });
-                $('input.speed').on('change', function () {
-                    antsInterface.updateSpeedOutput($(this).val());
-                });
-                $('input.speed').on(antsInterface.mouseupOrTouchend, function () {
-                    antsInterface.updateSpeedOutput($(this).val());
+                $('input.speed').off('change').on('change', function () {
                     self.stopRun();
                     antsInterface.setSpeedInterval($(this).val());
                     self.run();
                 });
-                $('input.size').on('change', function () {
+                $('input.size').off('change').on('change', function () {
                     antsInterface.updateSizeOutput($(this).val());
-                });
-                $('input.size').on(antsInterface.mouseupOrTouchend, function () {
-                    antsInterface.updateSizeOutput($(this).val());
-                    self.stopRun();
                     self.init();
-                    self.run();
                 });
-                $('body').on(antsInterface.mouseupOrTouchend, function (event) {
+                $('#thetoroid').off('click').on('click', function (event) {
                     if (event.clientY > $('.controls').outerHeight()) {
                         let pos = [Math.floor(event.clientY / antsInterface.cellSize),
                         Math.floor(event.clientX / antsInterface.cellSize)];
-                        self.stopRun();
-                        self.newAnt(pos);
-                        self.run();
+                        self.preserveRunningState(self.newAnt, pos);
                     }
                 });
             }

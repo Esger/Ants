@@ -3,11 +3,11 @@
 
 /* Eric Meyer's CSS reset */
 a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
-    margin        : 0;
-    padding       : 0;
-    border        : 0;
-    font-size     : 100%;
-    font          : inherit;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
     vertical-align: baseline;
 }
 
@@ -35,13 +35,15 @@ blockquote:after, blockquote:before, q:after, q:before {
 
 /* The ants CSS */
 body, html {
-    height: 100%;
-    font  : normal 11px/14px Verdana, Geneva, sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    font: normal 11px/14px Verdana, Geneva, sans-serif;
 }
 
 canvas {
-    position        : absolute;
-    z-index         : -100;
+    position: absolute;
+    z-index: 0;
     background-color: #000;
 }
 
@@ -51,15 +53,15 @@ canvas {
 
 /* The Controls */
 .controls {
-    position             : relative;
-    vertical-align       : top;
-    margin               : 0 auto;
-    width                : 600px;
-    background-color     : rgba(255,255,255,0.4);
-    padding              : 10px;
+    position: relative;
+    vertical-align: top;
+    margin: 0 auto;
+    width: 600px;
+    background-color: rgba(255,255,255,0.4);
+    padding: 10px;
     -webkit-border-radius: 0 0 10px 10px;
-    border-radius        : 0 0 10px 10px;
-    z-index              : 1000;
+    border-radius: 0 0 10px 10px;
+    z-index: 1000;
 }
 
 label, output {
@@ -71,7 +73,7 @@ output {
 }
 
 fieldset {
-    float       : left;
+    float: left;
     margin-right: 10px;
 }
 
@@ -104,9 +106,9 @@ fieldset.stats {
 }
 
 .stats input {
-    color                : #000;
-    width                : 100px;
-    text-align           : right;
+    color: #000;
+    width: 100px;
+    text-align: right;
     -webkit-border-radius: 5px;
-    border-radius        : 5px;
+    border-radius: 5px;
 }
