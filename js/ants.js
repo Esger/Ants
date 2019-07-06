@@ -145,13 +145,10 @@ $(function () {
             this.updateDisplay();
         },
 
-        // canvas context
-        ctx: undefined,
-
         // clear the Canvas
         clearCanvas() {
-            this.ctx.fillStyle = "rgb(0, 0, 0)";
-            this.ctx.fillRect(0, 0, $(this.canvas).width(), $(this.canvas).height());
+            this.ctxOffscreen.fillStyle = "rgb(0, 0, 0)";
+            this.ctxOffscreen.fillRect(0, 0, $(this.canvas).width(), $(this.canvas).height());
         },
 
         // Calculate real pos on screen by multiplying with cellSize
@@ -161,10 +158,16 @@ $(function () {
 
         // add the Canvas to the DOM
         addCanvasToDOM() {
+            // Offscreen canvas for faster drawing
+            this.offScreenCanvas = document.createElement('canvas');
+            this.offScreenCanvas.width = this.dimensions.width;
+            this.offScreenCanvas.height = this.dimensions.height;
+            this.ctxOffscreen = this.offScreenCanvas.getContext('2d');
+            // The visible canvas
             $('#thetoroid').remove();
             $('body').prepend('<canvas id="thetoroid" width="' + this.dimensions.width + '" height="' + this.dimensions.height + '"></canvas>');
             this.canvas = document.getElementById('thetoroid'); // The canvas where the ants live
-            this.ctx = this.canvas.getContext('2d');
+            this.ctxOnscreen = this.canvas.getContext('2d');
         },
 
         // draw all Pixels on the screen
@@ -178,8 +181,8 @@ $(function () {
 
         // draw a Pixel on the screen given position
         drawPixel(pos, val) {
-            this.ctx.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
-            this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
+            this.ctxOffscreen.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
+            this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
             this.setPixel(pos, val);
         },
 
@@ -191,8 +194,14 @@ $(function () {
 
         // draw the ant
         drawAnt(pos) {
-            this.ctx.fillStyle = "rgb(255, 0, 0)";
-            this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
+            this.ctxOffscreen.fillStyle = "rgb(255, 0, 0)";
+            this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
+        },
+
+        drawScreen() {
+            requestAnimationFrame(_ => {
+                this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
+            });
         },
 
         // Check if a cell exists and is set
@@ -267,6 +276,7 @@ $(function () {
             let wasRunning = runningId;
             if (wasRunning) { this.stopRun(); }
             methodToCall(argument);
+            antsInterface.drawScreen();
             if (wasRunning) { this.run(); }
         },
 
@@ -281,6 +291,7 @@ $(function () {
                 antsInterface.drawAnt(ant.position);
             });
             antsInterface.incStepCounter();
+            antsInterface.drawScreen();
         },
 
         // Setter for interval
