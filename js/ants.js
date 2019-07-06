@@ -88,6 +88,7 @@ $(function () {
             this.setDimensions();
             this.addCanvasToDOM();
             antsController.setSpeedInterval();
+            antsController.setSkipAmount();
             this.setCellSize($('input.size').val());
             this.resetStepCounter();
             this.clearCells();
@@ -179,6 +180,12 @@ $(function () {
             });
         },
 
+        drawAnts() {
+            antsController.ants.forEach(ant => {
+                this.drawAnt(ant.position);
+            });
+        },
+
         // draw a Pixel on the screen given position
         drawPixel(pos, val) {
             this.ctxOffscreen.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
@@ -186,22 +193,18 @@ $(function () {
             this.setPixel(pos, val);
         },
 
-        drawAnts() {
-            antsController.ants.forEach(ant => {
-                this.drawAnt(ant.position);
-            });
-        },
-
         // draw the ant
-        drawAnt(pos) {
-            this.ctxOffscreen.fillStyle = "rgb(255, 0, 0)";
+        drawAnt(pos, val) {
+            this.ctxOffscreen.fillStyle = val ? "rgb(237, 20, 61)" : "rgb(0, 0, 0)";
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
         },
 
         drawScreen() {
-            requestAnimationFrame(_ => {
-                this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
-            });
+            if (this.stepCounter % this.skipAmount == 0) {
+                requestAnimationFrame(_ => {
+                    this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
+                });
+            }
         },
 
         // Check if a cell exists and is set
@@ -257,7 +260,7 @@ $(function () {
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setPosition(pos);
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position);
+            antsInterface.drawAnt(ant.position); // waarde meegeven?
             antsInterface.updateAntsCount(antsController.ants.length);
         },
 
@@ -286,9 +289,10 @@ $(function () {
                 let currentBackground = antsInterface.getPixel(ant.position);
                 ant.newDirection(currentBackground);
                 // flip the pixel
+                antsInterface.drawAnt(ant.position, 0);
                 antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
-                antsInterface.drawAnt(ant.position);
+                antsInterface.drawAnt(ant.position, 1);
             });
             antsInterface.incStepCounter();
             antsInterface.drawScreen();
@@ -298,6 +302,11 @@ $(function () {
         setSpeedInterval() {
             antsController.interval = parseInt($('input.speed').val(), 10);
             $('output.speed').val(antsController.interval);
+        },
+
+        setSkipAmount() {
+            antsInterface.skipAmount = parseInt($('input.skips').val(), 10);
+            $('output.skips').val(antsInterface.skipAmount);
         },
 
         // Run the main cycle each interval miliseconds
@@ -330,6 +339,9 @@ $(function () {
             });
             $('input.speed').off('change').on('change', _ => {
                 this.preserveRunningState(this.setSpeedInterval);
+            });
+            $('input.skips').off('change').on('change', _ => {
+                this.preserveRunningState(this.setSkipAmount);
             });
             $('input.size').off('change').on('change', _ => {
                 antsInterface.updateSizeOutput($('input.size').val());
