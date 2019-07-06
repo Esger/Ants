@@ -333,6 +333,9 @@ $(function () {
                 antsInterface.updateSizeOutput($('input.size').val());
                 this.preserveRunningState(antsInterface.resize);
             });
+            $(window).off('resize').on('resize', _ => {
+                this.preserveRunningState(antsInterface.resize);
+            });
             $('body').off('click').on('click', '#thetoroid', event => {
                 if (event.clientY > $('.controls').outerHeight()) {
                     let pos = [Math.floor(event.clientY / antsInterface.cellSize),
