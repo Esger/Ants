@@ -327,7 +327,7 @@ $(function () {
                     antsInterface.updateSizeOutput($('input.size').val());
                     this.preserveRunningState(antsInterface.resize);
                 });
-                $('#thetoroid').off('click').on('click', event => {
+                $('body').off('click').on('click', '#thetoroid', event => {
                     if (event.clientY > $('.controls').outerHeight()) {
                         let pos = [Math.floor(event.clientY / antsInterface.cellSize),
                         Math.floor(event.clientX / antsInterface.cellSize)];
