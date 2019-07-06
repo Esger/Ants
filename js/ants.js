@@ -25,11 +25,12 @@ $(function () {
             },
 
             // set the boundaries, the dimensions of the ant's world
+            // the ants will not be remapped to the viewport when zooming in
             setBoundaries(t, r, b, l, s) {
-                this.boundaries.top = t;
-                this.boundaries.right = Math.floor(r / s);
-                this.boundaries.bottom = Math.floor(b / s);
-                this.boundaries.left = l;
+                this.boundaries.top = Math.min(t, this.boundaries.top);
+                this.boundaries.right = Math.max(Math.floor(r / s), this.boundaries.right);
+                this.boundaries.bottom = Math.max(Math.floor(b / s), this.boundaries.bottom);
+                this.boundaries.left = Math.min(l, this.boundaries.left);
             },
 
             // the current position of the ant [y,x]
@@ -97,11 +98,18 @@ $(function () {
             resize() {
                 // 'this' is lost when resize is called, so refer to antsInterface
                 antsInterface.setDimensions();
+                antsInterface.setAntsBoundaries();
                 antsInterface.addCanvasToDOM();
                 antsInterface.setCellSize($('input.size').val());
                 antsInterface.clearCanvas();
                 antsInterface.drawPixels();
                 antsInterface.drawAnts();
+            },
+
+            setAntsBoundaries() {
+                antsController.ants.forEach(ant => {
+                    ant.setBoundaries(0, this.dimensions.width, this.dimensions.height, 0, this.cellSize);
+                });
             },
 
             // The size of the antsworld
