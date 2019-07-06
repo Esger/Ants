@@ -292,7 +292,7 @@ $(function () {
         // Run the main cycle each interval miliseconds
         run() {
             runningId = setInterval(() => {
-                requestAnimationFrame(this.turnFlipStep);
+                this.turnFlipStep();
             }, this.interval);
         },
 
