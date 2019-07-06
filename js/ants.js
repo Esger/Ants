@@ -198,12 +198,7 @@ $(function () {
         // Check if a cell exists and is set
         getPixel(pos) {
             let row = this.cells[pos[0]];
-            if (!!row) {
-                let col = this.cells[pos[0]][pos[1]];
-                return !!col;
-            } else {
-                return false;
-            }
+            return !!row && !!row[pos[1]] * 1;
         },
 
         setPixel(pos, val) {
@@ -211,12 +206,6 @@ $(function () {
                 this.cells[pos[0]] = [];
             }
             this.cells[pos[0]][pos[1]] = val;
-        },
-
-        // flip a Pixel on the screen on given position
-        flipPixel(pos) {
-            let current = (this.cells[pos[0]] && this.cells[pos[0]][pos[1]]) ? 1 : 0;
-            this.drawPixel(pos, 1 - current);
         },
 
         // initilize some values
@@ -284,8 +273,10 @@ $(function () {
         // The main cycle
         turnFlipStep() {
             antsController.ants.forEach(ant => {
-                ant.newDirection(antsInterface.getPixel(ant.position));
-                antsInterface.flipPixel(ant.position);
+                let currentBackground = antsInterface.getPixel(ant.position);
+                ant.newDirection(currentBackground);
+                // flip the pixel
+                antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
                 antsInterface.drawAnt(ant.position);
             });
