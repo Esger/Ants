@@ -199,7 +199,9 @@ $(function () {
         },
 
         drawScreen() {
-            this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
+            requestAnimationFrame(_ => {
+                this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
+            });
         },
 
         // Check if a cell exists and is set
@@ -288,8 +290,8 @@ $(function () {
                 ant.oneStep();
                 antsInterface.drawAnt(ant.position);
             });
-            antsInterface.drawScreen();
             antsInterface.incStepCounter();
+            antsInterface.drawScreen();
         },
 
         // Setter for interval
@@ -301,7 +303,7 @@ $(function () {
         // Run the main cycle each interval miliseconds
         run() {
             runningId = setInterval(() => {
-                requestAnimationFrame(this.turnFlipStep);
+                this.turnFlipStep();
             }, this.interval);
         },
 
