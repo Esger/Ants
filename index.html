@@ -16,47 +16,34 @@
             <button class="run">run</button>
             <button class="clear">clear</button>
         </fieldset>
-        <fieldset class="speed">
+        <fieldset class="speed vertical">
             <input class="speed"
                    name="speed"
                    type="range"
                    min="0"
                    max="500"
-                   value="10" /><br />
-            <label class="left"
-                   for="speed">faster</label>
-            <output for="speed"
-                    class="speed">100</output>
-            <label class="right"
-                   for="speed">slower</label>
+                   value="10" />
+            <label for="speed">speed <span class="value"></span></label>
         </fieldset>
-        <fieldset class="skips">
+        <fieldset class="skips vertical">
             <input class="skips"
-                           name="skips"
-                           type="range"
-                           min="1"
-                           max="100"
-                           value="1" /><br />
-            <label class="left"
-                           for="skips">skips -</label>
-            <output for="skips"
-                    class="skips">100</output>
-            <label class="right"
-                           for="skips">skips +</label>
+                    name="skips"
+                    type="range"
+                    min="1"
+                    max="500"
+                    value="1" />
+            <label class="skips"
+                    for="skips">skips <span class="value"></span></label>
         </fieldset>
-        <fieldset class="size">
+        <fieldset class="size vertical">
             <input class="size"
                    name="size"
                    type="range"
                    min="1"
                    max="30"
-                   value="10" /><br />
+                   value="10" />
             <label class="left"
-                   for="size">zoom +</label>
-            <output for="size"
-                    class="size">10</output>
-            <label class="right"
-                   for="size">zoom -</label>
+                   for="size">zoom <span class="value"></span></label>
         </fieldset>
         <fieldset class="stats">
             <input id="antsCount"

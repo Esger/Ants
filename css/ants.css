@@ -75,16 +75,36 @@ output {
 }
 
 fieldset {
-    float: left;
     margin: 0 10px 10px 0;
-}
-
-fieldset {
     text-align: center;
 }
 
 button {
     cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 3px;
+}
+
+fieldset.vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+fieldset.vertical label {
+    user-select: none;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+fieldset.speed input[type=range] {
+    direction: rtl;
+}
+
+fieldset.vertical input[type=number] {
+    width: 90%;
+    text-align: center;
+    margin: auto;
 }
 
 fieldset.stats, fieldset.stats input, fieldset.stats label {

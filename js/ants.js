@@ -98,7 +98,9 @@ $(function () {
             // 'this' is lost when resize is called, so refer to antsInterface
             antsInterface.setDimensions();
             antsInterface.addCanvasToDOM();
-            antsInterface.setCellSize($('input.size').val());
+            let value = $('input.size').val();
+            antsInterface.setCellSize(value);
+            $('.size label .value').text(value);
             antsInterface.clearCanvas();
             antsInterface.drawPixels();
             antsInterface.setAntsBoundaries();
@@ -300,13 +302,15 @@ $(function () {
 
         // Setter for interval
         setSpeedInterval() {
-            antsController.interval = parseInt($('input.speed').val(), 10);
-            $('output.speed').val(antsController.interval);
+            let $speedInput = $('input.speed');
+            antsController.interval = parseInt($($speedInput).val(), 10);
+            let maxSpeed = $speedInput.attr('max');
+            $('.speed label .value').text(maxSpeed - antsController.interval);
         },
 
         setSkipAmount() {
             antsInterface.skipAmount = parseInt($('input.skips').val(), 10);
-            $('output.skips').val(antsInterface.skipAmount);
+            $('.skips label .value').text(antsInterface.skipAmount);
         },
 
         // Run the main cycle each interval miliseconds
