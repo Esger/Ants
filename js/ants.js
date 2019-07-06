@@ -101,6 +101,7 @@ $(function () {
                 antsInterface.setCellSize($('input.size').val());
                 antsInterface.clearCanvas();
                 antsInterface.drawPixels();
+                antsInterface.drawAnts();
             },
 
             // The size of the antsworld
@@ -174,6 +175,12 @@ $(function () {
                 this.ctx.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
                 this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
                 this.setPixel(pos, val);
+            },
+
+            drawAnts() {
+                antsController.ants.forEach(ant => {
+                    this.drawAnt(ant.position);
+                });
             },
 
             // draw the ant
