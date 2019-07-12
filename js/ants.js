@@ -202,8 +202,8 @@ $(function () {
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
         },
 
-        drawScreen() {
-            if (this.stepCounter % this.skipAmount == 0) {
+        drawScreen(doItAnyway) {
+            if (this.stepCounter % this.skipAmount == 0 || doItAnyway) {
                 requestAnimationFrame(_ => {
                     this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
                 });
@@ -263,7 +263,8 @@ $(function () {
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setPosition(pos);
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position); // waarde meegeven?
+            antsInterface.drawAnt(ant.position, 1); // waarde meegeven?
+            antsInterface.drawScreen(true);
             antsInterface.updateAntsCount(antsController.ants.length);
         },
 
