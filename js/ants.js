@@ -10,6 +10,7 @@ $(function () {
 
     // The variable containing the setInterval
     var runningId = null;
+    var hideMenuTimerId = null;
 
     // The Model
     var antBrain = {
@@ -88,6 +89,7 @@ $(function () {
             this.setDimensions();
             this.addCanvasToDOM();
             antsController.setSpeedInterval();
+            antsController.setSkipAmount();
             this.setCellSize($('input.size').val());
             this.resetStepCounter();
             this.clearCells();
@@ -97,7 +99,9 @@ $(function () {
             // 'this' is lost when resize is called, so refer to antsInterface
             antsInterface.setDimensions();
             antsInterface.addCanvasToDOM();
-            antsInterface.setCellSize($('input.size').val());
+            let value = $('input.size').val();
+            antsInterface.setCellSize(value);
+            $('.size label .value').text(value);
             antsInterface.clearCanvas();
             antsInterface.drawPixels();
             antsInterface.setAntsBoundaries();
@@ -145,13 +149,10 @@ $(function () {
             this.updateDisplay();
         },
 
-        // canvas context
-        ctx: undefined,
-
         // clear the Canvas
         clearCanvas() {
-            this.ctx.fillStyle = "rgb(0, 0, 0)";
-            this.ctx.fillRect(0, 0, $(this.canvas).width(), $(this.canvas).height());
+            this.ctxOffscreen.fillStyle = "rgb(0, 0, 0)";
+            this.ctxOffscreen.fillRect(0, 0, $(this.canvas).width(), $(this.canvas).height());
         },
 
         // Calculate real pos on screen by multiplying with cellSize
@@ -161,10 +162,16 @@ $(function () {
 
         // add the Canvas to the DOM
         addCanvasToDOM() {
+            // Offscreen canvas for faster drawing
+            this.offScreenCanvas = document.createElement('canvas');
+            this.offScreenCanvas.width = this.dimensions.width;
+            this.offScreenCanvas.height = this.dimensions.height;
+            this.ctxOffscreen = this.offScreenCanvas.getContext('2d');
+            // The visible canvas
             $('#thetoroid').remove();
             $('body').prepend('<canvas id="thetoroid" width="' + this.dimensions.width + '" height="' + this.dimensions.height + '"></canvas>');
             this.canvas = document.getElementById('thetoroid'); // The canvas where the ants live
-            this.ctx = this.canvas.getContext('2d');
+            this.ctxOnscreen = this.canvas.getContext('2d');
         },
 
         // draw all Pixels on the screen
@@ -176,23 +183,31 @@ $(function () {
             });
         },
 
-        // draw a Pixel on the screen given position
-        drawPixel(pos, val) {
-            this.ctx.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
-            this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
-            this.setPixel(pos, val);
-        },
-
         drawAnts() {
             antsController.ants.forEach(ant => {
                 this.drawAnt(ant.position);
             });
         },
 
+        // draw a Pixel on the screen given position
+        drawPixel(pos, val) {
+            this.ctxOffscreen.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
+            this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
+            this.setPixel(pos, val);
+        },
+
         // draw the ant
-        drawAnt(pos) {
-            this.ctx.fillStyle = "rgb(255, 0, 0)";
-            this.ctx.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
+        drawAnt(pos, val) {
+            this.ctxOffscreen.fillStyle = val ? "rgb(237, 20, 61)" : "rgb(0, 0, 0)";
+            this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
+        },
+
+        drawScreen() {
+            if (this.stepCounter % this.skipAmount == 0) {
+                requestAnimationFrame(_ => {
+                    this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
+                });
+            }
         },
 
         // Check if a cell exists and is set
@@ -216,12 +231,12 @@ $(function () {
 
         // update the number of steps done
         updateDisplay() {
-            $('#steps').val(this.stepCounter);
+            $('#steps .value').text(this.stepCounter);
         },
 
         // update the number of ants on screen
         updateAntsCount(ants) {
-            $('#antsCount').val(ants);
+            $('#antsCount .value').text(ants);
         },
 
         //update the speed output with given value (from speed input)
@@ -248,7 +263,7 @@ $(function () {
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setPosition(pos);
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position);
+            antsInterface.drawAnt(ant.position); // waarde meegeven?
             antsInterface.updateAntsCount(antsController.ants.length);
         },
 
@@ -267,6 +282,7 @@ $(function () {
             let wasRunning = runningId;
             if (wasRunning) { this.stopRun(); }
             methodToCall(argument);
+            antsInterface.drawScreen();
             if (wasRunning) { this.run(); }
         },
 
@@ -276,23 +292,32 @@ $(function () {
                 let currentBackground = antsInterface.getPixel(ant.position);
                 ant.newDirection(currentBackground);
                 // flip the pixel
+                antsInterface.drawAnt(ant.position, 0);
                 antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
-                antsInterface.drawAnt(ant.position);
+                antsInterface.drawAnt(ant.position, 1);
             });
             antsInterface.incStepCounter();
+            antsInterface.drawScreen();
         },
 
         // Setter for interval
         setSpeedInterval() {
-            antsController.interval = parseInt($('input.speed').val(), 10);
-            $('output.speed').val(antsController.interval);
+            let $speedInput = $('input.speed');
+            antsController.interval = parseInt($($speedInput).val(), 10);
+            let maxSpeed = $speedInput.attr('max');
+            $('.speed label .value').text(maxSpeed - antsController.interval);
+        },
+
+        setSkipAmount() {
+            antsInterface.skipAmount = parseInt($('input.skips').val(), 10);
+            $('.skips label .value').text(antsInterface.skipAmount);
         },
 
         // Run the main cycle each interval miliseconds
         run() {
             runningId = setInterval(() => {
-                requestAnimationFrame(this.turnFlipStep);
+                this.turnFlipStep();
             }, this.interval);
         },
 
@@ -320,6 +345,9 @@ $(function () {
             $('input.speed').off('change').on('change', _ => {
                 this.preserveRunningState(this.setSpeedInterval);
             });
+            $('input.skips').off('change').on('change', _ => {
+                this.preserveRunningState(this.setSkipAmount);
+            });
             $('input.size').off('change').on('change', _ => {
                 antsInterface.updateSizeOutput($('input.size').val());
                 this.preserveRunningState(antsInterface.resize);
@@ -337,9 +365,32 @@ $(function () {
         }
     };
 
+    var menuController = {
+        _hideMenu() {
+            hideMenuTimerId = setTimeout(_ => {
+                $('.controls').addClass('tucked');
+                $('.hamburger').removeClass('tucked');
+            }, 5000);
+        },
+        _clearTimer() {
+            clearTimeout(hideMenuTimerId);
+            menuController._hideMenu();
+        },
+        _showMenu() {
+            $('.controls').removeClass('tucked');
+            $('.hamburger').addClass('tucked');
+        },
+        init() {
+            menuController._hideMenu();
+            $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
+                .off('mousemove').on('mousemove', menuController._clearTimer);
+            $('.hamburger').off('mouseenter').on('mouseenter', menuController._showMenu);
+        }
+    };
 
     // Start doing this !!
     antsController.init();
+    menuController.init();
 
 });
 
