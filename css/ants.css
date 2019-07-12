@@ -53,15 +53,49 @@ canvas {
 
 /* The Controls */
 .controls {
-    position: relative;
     vertical-align: top;
-    margin: 0 auto;
-    width: 600px;
-    background-color: rgba(255,255,255,0.4);
-    padding: 10px;
-    -webkit-border-radius: 0 0 10px 10px;
+    width: 90vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+body::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+}
+
+.controls, .hamburger {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
     border-radius: 0 0 10px 10px;
+    background-color: rgba(255,255,255,0.4);
+    transition: all .5s ease-in-out;
     z-index: 1000;
+}
+
+.controls.tucked {
+    top: -180px;
+}
+
+.hamburger {
+    color: #fffe;
+    font-size: 24px;
+    width: 40px;
+    height: 30px;
+    z-index: 999;
+    text-align: center;
+    line-height: 30px;
+    transition: all .3s ease-in-out;
+}
+
+.hamburger.tucked {
+    top: -40px;
 }
 
 label, output {
@@ -73,42 +107,40 @@ output {
 }
 
 fieldset {
-    float: left;
-    margin-right: 10px;
-}
-
-fieldset {
+    margin: 10px 5px;
     text-align: center;
-}
-
-fieldset .left {
-    float: left;
-}
-
-fieldset .right {
-    float: right;
 }
 
 button {
     cursor: pointer;
+    padding: 6px 12px;
+    margin: 0 5px;
+    border-radius: 3px;
 }
 
-fieldset.stats, fieldset.stats input, fieldset.stats label {
-    float: right;
+fieldset.vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-fieldset.stats label {
-    margin: 3px 10px 0 0;
+fieldset.vertical label {
+    user-select: none;
+    text-transform: uppercase;
+    letter-spacing: .5px;
 }
 
-fieldset.stats {
-    margin-right: 0;
+fieldset.runControls label {
+    margin-top: 4px;
+    display: inline-block;
 }
 
-.stats input {
-    color: #000;
-    width: 100px;
-    text-align: right;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
+fieldset.speed input[type=range] {
+    direction: rtl;
+}
+
+fieldset.vertical input[type=number] {
+    width: 90%;
+    text-align: center;
+    margin: auto;
 }
