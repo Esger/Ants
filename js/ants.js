@@ -10,6 +10,7 @@ $(function () {
 
     // The variable containing the setInterval
     var runningId = null;
+    var hideMenuTimerId = null;
 
     // The Model
     var antBrain = {
@@ -230,12 +231,12 @@ $(function () {
 
         // update the number of steps done
         updateDisplay() {
-            $('#steps').val(this.stepCounter);
+            $('#steps .value').text(this.stepCounter);
         },
 
         // update the number of ants on screen
         updateAntsCount(ants) {
-            $('#antsCount').val(ants);
+            $('#antsCount .value').text(ants);
         },
 
         //update the speed output with given value (from speed input)
@@ -364,9 +365,32 @@ $(function () {
         }
     };
 
+    var menuController = {
+        _hideMenu() {
+            hideMenuTimerId = setTimeout(_ => {
+                $('.controls').addClass('tucked');
+                $('.hamburger').removeClass('tucked');
+            }, 5000);
+        },
+        _clearTimer() {
+            clearTimeout(hideMenuTimerId);
+            menuController._hideMenu();
+        },
+        _showMenu() {
+            $('.controls').removeClass('tucked');
+            $('.hamburger').addClass('tucked');
+        },
+        init() {
+            menuController._hideMenu();
+            $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
+                .off('mousemove').on('mousemove', menuController._clearTimer);
+            $('.hamburger').off('mouseenter').on('mouseenter', menuController._showMenu);
+        }
+    };
 
     // Start doing this !!
     antsController.init();
+    menuController.init();
 
 });
 

@@ -53,17 +53,49 @@ canvas {
 
 /* The Controls */
 .controls {
-    position: relative;
     vertical-align: top;
-    margin: 0 auto;
     width: 90vw;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    background-color: rgba(255,255,255,0.4);
-    padding: 10px;
+    padding: 0 10px;
+}
+
+body::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+}
+
+.controls, .hamburger {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
     border-radius: 0 0 10px 10px;
+    background-color: rgba(255,255,255,0.4);
+    transition: all .5s ease-in-out;
     z-index: 1000;
+}
+
+.controls.tucked {
+    top: -180px;
+}
+
+.hamburger {
+    color: #fffe;
+    font-size: 24px;
+    width: 40px;
+    height: 30px;
+    z-index: 999;
+    text-align: center;
+    line-height: 30px;
+    transition: all .3s ease-in-out;
+}
+
+.hamburger.tucked {
+    top: -40px;
 }
 
 label, output {
@@ -75,13 +107,14 @@ output {
 }
 
 fieldset {
-    margin: 0 10px 10px 0;
+    margin: 10px 5px;
     text-align: center;
 }
 
 button {
     cursor: pointer;
-    padding: 8px 16px;
+    padding: 6px 12px;
+    margin: 0 5px;
     border-radius: 3px;
 }
 
@@ -97,6 +130,11 @@ fieldset.vertical label {
     letter-spacing: .5px;
 }
 
+fieldset.runControls label {
+    margin-top: 4px;
+    display: inline-block;
+}
+
 fieldset.speed input[type=range] {
     direction: rtl;
 }
@@ -105,23 +143,4 @@ fieldset.vertical input[type=number] {
     width: 90%;
     text-align: center;
     margin: auto;
-}
-
-fieldset.stats, fieldset.stats input, fieldset.stats label {
-    float: right;
-}
-
-fieldset.stats label {
-    margin: 3px 10px 0 0;
-}
-
-fieldset.stats {
-    margin-right: 0;
-}
-
-.stats input {
-    color: #000;
-    width: 100px;
-    text-align: right;
-    border-radius: 5px;
 }
