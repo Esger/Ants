@@ -23,7 +23,9 @@ $(function () {
             left: 0
         },
 
-        color: 'rgb(237, 20, 61)',
+        setColor() {
+            this.color = Math.random() > 0.5 ? 'rgb(237, 20, 61)' : 'rgba(0, 0, 255, 1)';
+        },
 
         // set the boundaries, the dimensions of the ant's world
         // the ants will not be remapped to the viewport when zooming in
@@ -264,6 +266,7 @@ $(function () {
             let ant = Object.create(antBrain);
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setPosition(pos);
+            ant.setColor();
             antsController.ants.push(ant);
             antsInterface.drawAnt(ant.position, ant.color);
             antsInterface.drawScreen(true);
