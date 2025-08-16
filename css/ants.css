@@ -4,7 +4,7 @@ html {
     height  : 100vh;
     width   : 100vw;
     overflow: hidden;
-    font    : normal 11px/14px Verdana, Geneva, sans-serif;
+    font    : normal 16px/24px Verdana, Geneva, sans-serif;
 }
 
 canvas {
@@ -48,7 +48,7 @@ body::before {
 
 .hamburger {
     color      : #fffe;
-    font-size  : 24px;
+    font-size  : 1.5rem;
     width      : 40px;
     height     : 30px;
     z-index    : 999;
@@ -59,7 +59,8 @@ body::before {
 
 label,
 output {
-    color: #fff;
+    font-size: 1rem;
+    color    : #fff;
 }
 
 output {
@@ -119,4 +120,5 @@ button {
     padding      : 6px 12px;
     margin       : 0 5px;
     border-radius: 3px;
+    font-size    : 1rem;
 }
