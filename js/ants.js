@@ -326,10 +326,8 @@ $(function () {
 
         // Pause the main cycle
         stopRun() {
-            if (!!runningId) {
-                clearInterval(runningId);
-                runningId = undefined;
-            }
+            clearInterval(runningId);
+            runningId = null;
         },
 
         // Listener for mouseClicks
