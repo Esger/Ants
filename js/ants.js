@@ -430,11 +430,11 @@ $(function () {
     };
 
     const menuController = {
-        _hideMenu() {
+        _hideMenu(timeOut) {
             hideMenuTimerId = setTimeout(_ => {
                 $('.controls').addClass('tucked');
                 $('.hamburger').removeClass('tucked');
-            }, 5000);
+            }, timeOut !== undefined ? timeOut : 5000);
         },
         _clearTimer() {
             clearTimeout(hideMenuTimerId);
@@ -445,7 +445,7 @@ $(function () {
             $('.hamburger').addClass('tucked');
         },
         init() {
-            menuController._hideMenu();
+            menuController._hideMenu(0);
             $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
                 .off('mousemove').on('mousemove', menuController._clearTimer)
                 .off('click').on('click', event => {
