@@ -23,8 +23,18 @@ $(function () {
             left: 0
         },
 
-        setColor() {
-            this.color = Math.random() > 0.5 ? 'rgb(237, 20, 61)' : 'rgba(0, 0, 255, 1)';
+        steps: 0,
+
+        isMature() {
+            return this.steps > 1000;
+        },
+
+        setId() {
+            this.id = Date.now();
+        },
+
+        setGender() {
+            this.gender = Math.random() > 0.5 ? 1 : 0;
         },
 
         // set the boundaries, the dimensions of the ant's world
@@ -53,7 +63,9 @@ $(function () {
         allDirections: [[1, 0], [0, -1], [-1, 0], [0, 1]],
 
         // an index for the current direction; possible values 0..3
-        direction: 0,
+        setDirection() {
+            this.direction = Math.round(Math.random() * 3);
+        },
 
         // advance the direction index; wrap it to zero if larger than 3
         turnRight() {
@@ -78,6 +90,7 @@ $(function () {
 
         // move the ant one step in the current direction
         oneStep() {
+            this.steps++;
             this.position[0] += this.allDirections[this.direction][0];
             this.position[0] = this.position[0].mod(this.boundaries.bottom);
             this.position[1] += this.allDirections[this.direction][1];
@@ -189,7 +202,7 @@ $(function () {
 
         drawAnts() {
             antsController.ants.forEach(ant => {
-                this.drawAnt(ant.position, ant.color);
+                this.drawAnt(ant.position, ant.gender);
             });
         },
 
@@ -201,8 +214,17 @@ $(function () {
         },
 
         // draw the ant
-        drawAnt(pos, color) {
-            this.ctxOffscreen.fillStyle = color ? color : "rgb(0, 0, 0)";
+        drawAnt(pos, gender) {
+            switch (gender) {
+                case 0:
+                    this.ctxOffscreen.fillStyle = "rgb(237, 20, 61)";
+                    break;
+                case 1:
+                    this.ctxOffscreen.fillStyle = "rgba(0, 0, 255, 1)";
+                    break;
+                default:
+                    this.ctxOffscreen.fillStyle = "rgb(0,0,0)";
+            }
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
         },
 
@@ -265,10 +287,20 @@ $(function () {
         newAnt(pos) {
             let ant = Object.create(antBrain);
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
+            ant.setDirection();
             ant.setPosition(pos);
-            ant.setColor();
+            ant.setGender();
+            ant.setId();
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position, ant.color);
+            antsInterface.drawAnt(ant.position, ant.gender);
+            antsInterface.drawScreen(true);
+            antsInterface.updateAntsCount(antsController.ants.length);
+        },
+
+        killAnt(ant) {
+            let index = antsController.ants.indexOf(ant);
+            antsController.ants.splice(index, 1);
+            antsInterface.drawAnt(ant.position);
             antsInterface.drawScreen(true);
             antsInterface.updateAntsCount(antsController.ants.length);
         },
@@ -301,10 +333,28 @@ $(function () {
                 antsInterface.drawAnt(ant.position, false);
                 antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
-                antsInterface.drawAnt(ant.position, ant.color);
+                antsController.fightOrFuck(ant);
+                antsInterface.drawAnt(ant.position, ant.gender);
             });
             antsInterface.incStepCounter();
             antsInterface.drawScreen();
+        },
+
+        fightOrFuck(ant) {
+            const matureAntsHere = antsController.ants.filter(a => a.isMature() && a.position[0] == ant.position[0] && a.position[1] == ant.position[1]);
+            if (matureAntsHere.length == 2) {
+                if (matureAntsHere[0].gender == matureAntsHere[1].gender) {
+                    const randomAnt = Math.random() > 0.5 ? matureAntsHere[0] : matureAntsHere[1];
+                    antsController.killAnt(randomAnt);
+                } else {
+                    if ((matureAntsHere[0].id + matureAntsHere[1].id) % 2 == 0) {
+                        this.newAnt(ant.position.map(p => p + Math.round(Math.random() * 2 - 1)));
+                        matureAntsHere.forEach(ant => {
+                            ant.steps = 0;
+                        })
+                    }
+                }
+            }
         },
 
         // Setter for interval
