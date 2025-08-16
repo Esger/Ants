@@ -9,11 +9,11 @@ $(function () {
     };
 
     // The variable containing the setInterval
-    var runningId = null;
-    var hideMenuTimerId = null;
+    let runningId = null;
+    let hideMenuTimerId = null;
 
     // The Model
-    var antBrain = {
+    const antBrain = {
 
         // the boundaries of the ant's world
         boundaries: {
@@ -83,7 +83,7 @@ $(function () {
 
 
     // The Interface
-    var antsInterface = {
+    const antsInterface = {
 
         init() {
             this.setDimensions();
@@ -248,7 +248,7 @@ $(function () {
 
 
     // The Controller 
-    var antsController = {
+    const antsController = {
 
         // The ants
         ants: [],
@@ -364,7 +364,7 @@ $(function () {
         }
     };
 
-    var menuController = {
+    const menuController = {
         _hideMenu(timeOut) {
             hideMenuTimerId = setTimeout(_ => {
                 $('.controls').addClass('tucked');
