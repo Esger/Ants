@@ -23,6 +23,8 @@ $(function () {
             left: 0
         },
 
+        color: 'rgb(237, 20, 61)',
+
         // set the boundaries, the dimensions of the ant's world
         // the ants will not be remapped to the viewport when zooming in
         setBoundaries(t, r, b, l, s) {
@@ -185,20 +187,20 @@ $(function () {
 
         drawAnts() {
             antsController.ants.forEach(ant => {
-                this.drawAnt(ant.position);
+                this.drawAnt(ant.position, ant.color);
             });
         },
 
         // draw a Pixel on the screen given position
-        drawPixel(pos, val) {
-            this.ctxOffscreen.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
+        drawPixel(pos, color) {
+            this.ctxOffscreen.fillStyle = color ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
-            this.setPixel(pos, val);
+            this.setPixel(pos, color);
         },
 
         // draw the ant
-        drawAnt(pos, val) {
-            this.ctxOffscreen.fillStyle = val ? "rgb(237, 20, 61)" : "rgb(0, 0, 0)";
+        drawAnt(pos, color) {
+            this.ctxOffscreen.fillStyle = color ? color : "rgb(0, 0, 0)";
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
         },
 
@@ -263,7 +265,7 @@ $(function () {
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setPosition(pos);
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position, 1); // waarde meegeven?
+            antsInterface.drawAnt(ant.position, ant.color);
             antsInterface.drawScreen(true);
             antsInterface.updateAntsCount(antsController.ants.length);
         },
@@ -293,10 +295,10 @@ $(function () {
                 let currentBackground = antsInterface.getPixel(ant.position);
                 ant.newDirection(currentBackground);
                 // flip the pixel
-                antsInterface.drawAnt(ant.position, 0);
+                antsInterface.drawAnt(ant.position, false);
                 antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
-                antsInterface.drawAnt(ant.position, 1);
+                antsInterface.drawAnt(ant.position, ant.color);
             });
             antsInterface.incStepCounter();
             antsInterface.drawScreen();
