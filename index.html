@@ -1,62 +1,64 @@
 <!DOCTYPE html>
 <html xmlns="https://www.w3.org/1999/xhtml">
 
-<head>
-    <meta http-equiv="Content-Type"
-          content="text/html; charset=UTF-8" />
-    <link rel="stylesheet"
-          href="./css/ants.css" />
-    <title>Langton&rsquo;s ant &vellip; ashWare</title>
-</head>
+    <head>
+        <meta http-equiv="Content-Type"
+              content="text/html; charset=UTF-8" />
+        <link rel="stylesheet"
+              href="./css/reset.css" />
+        <link rel="stylesheet"
+              href="./css/ants.css" />
+        <title>Langton&rsquo;s ant &vellip; ashWare</title>
+    </head>
 
-<body>
-    <div class="controls">
-        <fieldset class="runControls vertical">
-            <div class="buttons">
-                <button class="stop">stop</button>
-                <button class="run">run</button>
-                <button class="clear">clear</button>
-            </div>
-            <div class="label">
-                <label id="antsCount">ants: <span class="value"></span>&vellip;</label>
-                <label id="steps">steps: <span class="value"></span></label>
-            </div>
-        </fieldset>
-        <fieldset class="speed vertical">
-            <input class="speed"
+    <body>
+        <div class="controls">
+            <fieldset class="runControls vertical">
+                <div class="buttons">
+                    <button class="stop">stop</button>
+                    <button class="run">run</button>
+                    <button class="clear">clear</button>
+                </div>
+                <div class="label">
+                    <label id="antsCount">ants: <span class="value"></span>&vellip;</label>
+                    <label id="steps">steps: <span class="value"></span></label>
+                </div>
+            </fieldset>
+            <fieldset class="speed vertical">
+                <input class="speed"
                    name="speed"
                    type="range"
                    min="0"
                    max="500"
                    value="10" />
-            <label for="speed">speed <span class="value"></span></label>
-        </fieldset>
-        <fieldset class="skips vertical">
-            <input class="skips"
+                <label for="speed">speed <span class="value"></span></label>
+            </fieldset>
+            <fieldset class="skips vertical">
+                <input class="skips"
                     name="skips"
                     type="range"
                     min="1"
                     max="500"
                     value="1" />
-            <label class="skips"
+                <label class="skips"
                     for="skips">skips <span class="value"></span></label>
-        </fieldset>
-        <fieldset class="size vertical">
-            <input class="size"
+            </fieldset>
+            <fieldset class="size vertical">
+                <input class="size"
                    name="size"
                    type="range"
                    min="1"
                    max="30"
                    value="10" />
-            <label class="left"
+                <label class="left"
                    for="size">zoom <span class="value"></span></label>
-        </fieldset>
-    </div>
-    <div class="hamburger tucked">=</div>
-    <script src="https://code.jquery.com/jquery-latest.js"
-            type="text/javascript"></script>
-    <script src="js/ants.js"
-            type="text/javascript"></script>
-</body>
+            </fieldset>
+        </div>
+        <div class="hamburger tucked">=</div>
+        <script src="https://code.jquery.com/jquery-latest.js"
+                type="text/javascript"></script>
+        <script src="js/ants.js"
+                type="text/javascript"></script>
+    </body>
 
 </html>
