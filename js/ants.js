@@ -357,21 +357,19 @@ $(function () {
                 this.preserveRunningState(antsInterface.resize);
             });
             $('body').off('click').on('click', '#thetoroid', event => {
-                if (event.clientY > $('.controls').outerHeight()) {
-                    let pos = [Math.floor(event.clientY / antsInterface.cellSize),
-                    Math.floor(event.clientX / antsInterface.cellSize)];
-                    this.preserveRunningState(this.newAnt, pos);
-                }
+                let pos = [Math.floor(event.clientY / antsInterface.cellSize),
+                Math.floor(event.clientX / antsInterface.cellSize)];
+                this.preserveRunningState(this.newAnt, pos);
             });
         }
     };
 
     var menuController = {
-        _hideMenu() {
+        _hideMenu(timeOut) {
             hideMenuTimerId = setTimeout(_ => {
                 $('.controls').addClass('tucked');
                 $('.hamburger').removeClass('tucked');
-            }, 5000);
+            }, timeOut !== undefined ? timeOut : 5000);
         },
         _clearTimer() {
             clearTimeout(hideMenuTimerId);
@@ -382,9 +380,15 @@ $(function () {
             $('.hamburger').addClass('tucked');
         },
         init() {
-            menuController._hideMenu();
+            menuController._hideMenu(0);
             $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
-                .off('mousemove').on('mousemove', menuController._clearTimer);
+                .off('mousemove').on('mousemove', menuController._clearTimer)
+                .off('click').on('click', event => {
+                    if (event.target !== $('.controls')[0]) return;
+                    if ($('body').hasClass('isIframed')) {
+                        menuController._hideMenu(0);
+                    }
+                });
             $('.hamburger').off('mouseenter').on('mouseenter', menuController._showMenu);
             if (window.parent !== window) {
                 // document is being loaded in an iframe
