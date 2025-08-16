@@ -33,7 +33,11 @@ $(function () {
             this.id = Date.now();
         },
 
-        setGender() {
+        setGender(gendered) {
+            if (!gendered) {
+                this.gender = 0;
+                return;
+            }
             this.gender = Math.random() > 0.5 ? 1 : 0;
         },
 
@@ -215,12 +219,15 @@ $(function () {
 
         // draw the ant
         drawAnt(pos, gender) {
+            const maleColor = "rgb(237, 20, 61)";
+            const femaleColor = "rgb(0, 0, 255)";
+            const secondColor = antsController.gendered ? femaleColor : maleColor;
             switch (gender) {
                 case 0:
-                    this.ctxOffscreen.fillStyle = "rgb(237, 20, 61)";
+                    this.ctxOffscreen.fillStyle = maleColor;
                     break;
                 case 1:
-                    this.ctxOffscreen.fillStyle = "rgba(0, 0, 255, 1)";
+                    this.ctxOffscreen.fillStyle = secondColor;
                     break;
                 default:
                     this.ctxOffscreen.fillStyle = "rgb(0,0,0)";
@@ -279,6 +286,8 @@ $(function () {
         // The ants
         ants: [],
 
+        gendered: false,
+
         killAnts() {
             this.ants = [];
         },
@@ -289,7 +298,7 @@ $(function () {
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setDirection();
             ant.setPosition(pos);
-            ant.setGender();
+            ant.setGender(antsController.gendered);
             ant.setId();
             antsController.ants.push(ant);
             antsInterface.drawAnt(ant.position, ant.gender);
@@ -333,7 +342,7 @@ $(function () {
                 antsInterface.drawAnt(ant.position, false);
                 antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
-                antsController.fightOrFuck(ant);
+                antsController.gendered && antsController.fightOrFuck(ant);
                 antsInterface.drawAnt(ant.position, ant.gender);
             });
             antsInterface.incStepCounter();
@@ -406,6 +415,9 @@ $(function () {
                 antsInterface.updateSizeOutput($('input.size').val());
                 this.preserveRunningState(antsInterface.resize);
             });
+            $('input.gendered').off('change').on('change', _ => {
+                antsController.gendered = $('input.gendered').prop('checked');
+            })
             $(window).off('resize').on('resize', _ => {
                 this.preserveRunningState(antsInterface.resize);
             });
