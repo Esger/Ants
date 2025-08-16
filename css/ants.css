@@ -103,7 +103,7 @@ fieldset {
         letter-spacing: .5px;
     }
 
-    .isIframed {
+    .isIframed & {
 
         &.skips,
         &.gendered {
