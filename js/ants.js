@@ -9,11 +9,11 @@ $(function () {
     };
 
     // The variable containing the setInterval
-    var runningId = null;
-    var hideMenuTimerId = null;
+    let runningId = null;
+    let hideMenuTimerId = null;
 
     // The Model
-    var antBrain = {
+    const antBrain = {
 
         // the boundaries of the ant's world
         boundaries: {
@@ -21,6 +21,24 @@ $(function () {
             right: 0,
             bottom: 0,
             left: 0
+        },
+
+        steps: 0,
+
+        isMature() {
+            return this.steps > 1000;
+        },
+
+        setId() {
+            this.id = Date.now();
+        },
+
+        setGender(gendered) {
+            if (!gendered) {
+                this.gender = 0;
+                return;
+            }
+            this.gender = Math.random() > 0.5 ? 1 : 0;
         },
 
         // set the boundaries, the dimensions of the ant's world
@@ -49,7 +67,9 @@ $(function () {
         allDirections: [[1, 0], [0, -1], [-1, 0], [0, 1]],
 
         // an index for the current direction; possible values 0..3
-        direction: 0,
+        setDirection() {
+            this.direction = Math.round(Math.random() * 3);
+        },
 
         // advance the direction index; wrap it to zero if larger than 3
         turnRight() {
@@ -74,6 +94,7 @@ $(function () {
 
         // move the ant one step in the current direction
         oneStep() {
+            this.steps++;
             this.position[0] += this.allDirections[this.direction][0];
             this.position[0] = this.position[0].mod(this.boundaries.bottom);
             this.position[1] += this.allDirections[this.direction][1];
@@ -83,7 +104,7 @@ $(function () {
 
 
     // The Interface
-    var antsInterface = {
+    const antsInterface = {
 
         init() {
             this.setDimensions();
@@ -185,20 +206,32 @@ $(function () {
 
         drawAnts() {
             antsController.ants.forEach(ant => {
-                this.drawAnt(ant.position);
+                this.drawAnt(ant.position, ant.gender);
             });
         },
 
         // draw a Pixel on the screen given position
-        drawPixel(pos, val) {
-            this.ctxOffscreen.fillStyle = val ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
+        drawPixel(pos, color) {
+            this.ctxOffscreen.fillStyle = color ? "rgb(128, 128, 0)" : "rgb(0, 0, 0)";
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
-            this.setPixel(pos, val);
+            this.setPixel(pos, color);
         },
 
         // draw the ant
-        drawAnt(pos, val) {
-            this.ctxOffscreen.fillStyle = val ? "rgb(237, 20, 61)" : "rgb(0, 0, 0)";
+        drawAnt(pos, gender) {
+            const maleColor = "rgb(237, 20, 61)";
+            const femaleColor = "rgb(0, 0, 255)";
+            const secondColor = antsController.gendered ? femaleColor : maleColor;
+            switch (gender) {
+                case 0:
+                    this.ctxOffscreen.fillStyle = maleColor;
+                    break;
+                case 1:
+                    this.ctxOffscreen.fillStyle = secondColor;
+                    break;
+                default:
+                    this.ctxOffscreen.fillStyle = "rgb(0,0,0)";
+            }
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
         },
 
@@ -248,10 +281,12 @@ $(function () {
 
 
     // The Controller 
-    var antsController = {
+    const antsController = {
 
         // The ants
         ants: [],
+
+        gendered: false,
 
         killAnts() {
             this.ants = [];
@@ -261,9 +296,20 @@ $(function () {
         newAnt(pos) {
             let ant = Object.create(antBrain);
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
+            ant.setDirection();
             ant.setPosition(pos);
+            ant.setGender(antsController.gendered);
+            ant.setId();
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position, 1); // waarde meegeven?
+            antsInterface.drawAnt(ant.position, ant.gender);
+            antsInterface.drawScreen(true);
+            antsInterface.updateAntsCount(antsController.ants.length);
+        },
+
+        killAnt(ant) {
+            let index = antsController.ants.indexOf(ant);
+            antsController.ants.splice(index, 1);
+            antsInterface.drawAnt(ant.position);
             antsInterface.drawScreen(true);
             antsInterface.updateAntsCount(antsController.ants.length);
         },
@@ -293,13 +339,31 @@ $(function () {
                 let currentBackground = antsInterface.getPixel(ant.position);
                 ant.newDirection(currentBackground);
                 // flip the pixel
-                antsInterface.drawAnt(ant.position, 0);
+                antsInterface.drawAnt(ant.position, false);
                 antsInterface.drawPixel(ant.position, 1 - currentBackground);
                 ant.oneStep();
-                antsInterface.drawAnt(ant.position, 1);
+                antsController.gendered && antsController.fightOrFuck(ant);
+                antsInterface.drawAnt(ant.position, ant.gender);
             });
             antsInterface.incStepCounter();
             antsInterface.drawScreen();
+        },
+
+        fightOrFuck(ant) {
+            const matureAntsHere = antsController.ants.filter(a => a.isMature() && a.position[0] == ant.position[0] && a.position[1] == ant.position[1]);
+            if (matureAntsHere.length == 2) {
+                if (matureAntsHere[0].gender == matureAntsHere[1].gender) {
+                    const randomAnt = Math.random() > 0.5 ? matureAntsHere[0] : matureAntsHere[1];
+                    antsController.killAnt(randomAnt);
+                } else {
+                    if ((matureAntsHere[0].id + matureAntsHere[1].id) % 2 == 0) {
+                        this.newAnt(ant.position.map(p => p + Math.round(Math.random() * 2 - 1)));
+                        matureAntsHere.forEach(ant => {
+                            ant.steps = 0;
+                        })
+                    }
+                }
+            }
         },
 
         // Setter for interval
@@ -324,10 +388,8 @@ $(function () {
 
         // Pause the main cycle
         stopRun() {
-            if (!!runningId) {
-                clearInterval(runningId);
-                runningId = undefined;
-            }
+            clearInterval(runningId);
+            runningId = null;
         },
 
         // Listener for mouseClicks
@@ -353,6 +415,9 @@ $(function () {
                 antsInterface.updateSizeOutput($('input.size').val());
                 this.preserveRunningState(antsInterface.resize);
             });
+            $('input.gendered').off('change').on('change', _ => {
+                antsController.gendered = $('input.gendered').prop('checked');
+            })
             $(window).off('resize').on('resize', _ => {
                 this.preserveRunningState(antsInterface.resize);
             });
@@ -364,12 +429,12 @@ $(function () {
         }
     };
 
-    var menuController = {
-        _hideMenu(timeOut) {
+    const menuController = {
+        _hideMenu() {
             hideMenuTimerId = setTimeout(_ => {
                 $('.controls').addClass('tucked');
                 $('.hamburger').removeClass('tucked');
-            }, timeOut !== undefined ? timeOut : 5000);
+            }, 5000);
         },
         _clearTimer() {
             clearTimeout(hideMenuTimerId);
@@ -380,7 +445,7 @@ $(function () {
             $('.hamburger').addClass('tucked');
         },
         init() {
-            menuController._hideMenu(0);
+            menuController._hideMenu();
             $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
                 .off('mousemove').on('mousemove', menuController._clearTimer)
                 .off('click').on('click', event => {
