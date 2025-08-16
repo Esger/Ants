@@ -386,6 +386,10 @@ $(function () {
             $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
                 .off('mousemove').on('mousemove', menuController._clearTimer);
             $('.hamburger').off('mouseenter').on('mouseenter', menuController._showMenu);
+            if (window.parent !== window) {
+                // document is being loaded in an iframe
+                $('body').addClass('isIframed');
+            }
         }
     };
 
