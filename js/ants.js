@@ -202,8 +202,8 @@ $(function () {
             this.ctxOffscreen.fillRect(this.reMap(pos[1]), this.reMap(pos[0]), this.cellSize, this.cellSize);
         },
 
-        drawScreen() {
-            if (this.stepCounter % this.skipAmount == 0) {
+        drawScreen(doItAnyway) {
+            if (this.stepCounter % this.skipAmount == 0 || doItAnyway) {
                 requestAnimationFrame(_ => {
                     this.ctxOnscreen.drawImage(this.offScreenCanvas, 0, 0, this.dimensions.width, this.dimensions.height);
                 });
@@ -263,7 +263,8 @@ $(function () {
             ant.setBoundaries(0, antsInterface.dimensions.width, antsInterface.dimensions.height, 0, antsInterface.cellSize);
             ant.setPosition(pos);
             antsController.ants.push(ant);
-            antsInterface.drawAnt(ant.position); // waarde meegeven?
+            antsInterface.drawAnt(ant.position, 1); // waarde meegeven?
+            antsInterface.drawScreen(true);
             antsInterface.updateAntsCount(antsController.ants.length);
         },
 
@@ -356,21 +357,19 @@ $(function () {
                 this.preserveRunningState(antsInterface.resize);
             });
             $('body').off('click').on('click', '#thetoroid', event => {
-                if (event.clientY > $('.controls').outerHeight()) {
-                    let pos = [Math.floor(event.clientY / antsInterface.cellSize),
-                    Math.floor(event.clientX / antsInterface.cellSize)];
-                    this.preserveRunningState(this.newAnt, pos);
-                }
+                let pos = [Math.floor(event.clientY / antsInterface.cellSize),
+                Math.floor(event.clientX / antsInterface.cellSize)];
+                this.preserveRunningState(this.newAnt, pos);
             });
         }
     };
 
     var menuController = {
-        _hideMenu() {
+        _hideMenu(timeOut) {
             hideMenuTimerId = setTimeout(_ => {
                 $('.controls').addClass('tucked');
                 $('.hamburger').removeClass('tucked');
-            }, 5000);
+            }, timeOut !== undefined ? timeOut : 5000);
         },
         _clearTimer() {
             clearTimeout(hideMenuTimerId);
@@ -381,10 +380,20 @@ $(function () {
             $('.hamburger').addClass('tucked');
         },
         init() {
-            menuController._hideMenu();
+            menuController._hideMenu(0);
             $('.controls').off('mouseleave').on('mouseleave', menuController._clearTimer)
-                .off('mousemove').on('mousemove', menuController._clearTimer);
+                .off('mousemove').on('mousemove', menuController._clearTimer)
+                .off('click').on('click', event => {
+                    if (event.target !== $('.controls')[0]) return;
+                    if ($('body').hasClass('isIframed')) {
+                        menuController._hideMenu(0);
+                    }
+                });
             $('.hamburger').off('mouseenter').on('mouseenter', menuController._showMenu);
+            if (window.parent !== window) {
+                // document is being loaded in an iframe
+                $('body').addClass('isIframed');
+            }
         }
     };
 
